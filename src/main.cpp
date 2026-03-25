@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
                 findProductByName(products, name);
                 break;
             case 6:
-                std::cout << "Exiting program.\n";
+                std::cout << "Exiting program. Changes saved.\n";
                 running = false;
                 break;
             default:
