@@ -20,7 +20,11 @@ void showAllProducts(std::vector<Product> products) {
         Product product = products[i];
         int zl = product.price / 100;
         int gr = product.price % 100;
-        std::cout << "\t[" << i << "] " << product.name << " (" << zl << "." << gr << "zl) - " << product.quantity << "\n";
+        std::cout << "\t[" << i << "] " << product.name << " (" << zl;
+        if (gr != 0) {
+            std::cout << "." << ((gr < 10) ? "0" : "") << gr;
+        }
+        std::cout << "zl) - " << product.quantity << "\n";
     }
 }
 
@@ -131,12 +135,8 @@ int main(int argc, char* argv[]) {
                 showAllProducts(products);
                 break;
             case 2:
-                std::cout << "Enter product name: ";
-                std::cin >> name;
-                std::cout << "Enter product price: ";
-                std::cin >> price;
-                std::cout << "Enter product quantity: ";
-                std::cin >> quantity;
+                std::cout << "Enter product (name price quantity): ";
+                std::cin >> name >> price >> quantity;
                 products = addProduct(products, name, price, quantity);
                 break;
             case 3:
@@ -145,10 +145,8 @@ int main(int argc, char* argv[]) {
                 products = removeProduct(products, index);
                 break;
             case 4:
-                std::cout << "Enter product index: ";
-                std::cin >> index;
-                std::cout << "Enter new product quantity: ";
-                std::cin >> quantity;
+                std::cout << "Enter new quantity for product (index quantity): ";
+                std::cin >> index >> quantity;
                 products = setProductQuantity(products, index, quantity);
                 break;
             case 5:
