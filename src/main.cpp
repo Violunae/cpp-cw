@@ -1,132 +1,172 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
 
-std::string convertCase(const std::string &s, bool upperCase) {
-    std::string str = "";
-    for (char c : s) {
-        if (upperCase) {
-            if ((c >= 97) && (c <= 122)) {
-                c -= 32;
-            }
-        }
-        else if ((c >= 65) && (c <= 90)) {
-            c += 32;
-        }
-        str += c;
+typedef struct
+{
+    std::string name;
+    unsigned int price;
+    unsigned int quantity;
+} Product;
+
+void showAllProducts(std::vector<Product> products) {
+    if (products.empty()) {
+        std::cout << "There are no products.\n";
+        return;
     }
-    return str;
-}
-
-bool isPalindrome(const std::string &s) {
-    int len = s.length();
-    for (int i = 0; i <= len / 2; i++) {
-        if (s[i] != s[len-i-1]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-std::string rand(size_t n) {
-    std::string str = "";
-    while (n--) {
-        str += std::rand() % 26 + 97;
-    }
-    return str;
-}
-
-size_t longestWordLength(const std::string &s) {
-    size_t max = 0, score = 0;
-    for (char c : s) {
-        if (c != ' ') {
-            score++;
-            if (max < score) {
-                max = score;
-            }
-        }
-        else {
-            score = 0;
-        }
-    }
-    return max;
-}
-
-void rot13(std::string &s) {
-    const int rot = 13;
-    size_t len = s.length();
-    for (int i = 0; i < len; i++) {
-        unsigned char c = s[i];
-        if ((c >= 97) && (c <= 122)) {
-            c += rot;
-            if (c > 122) c -= 26;
-        }
-        else if ((c >= 65) && (c <= 90)) {
-            c += rot;
-            if (c > 90) c -= 26;
-        }
-        s[i] = c;
+    std::cout << "Showing all products:\n";
+    for (int i = 0; i < products.size(); i++) {
+        Product product = products[i];
+        int zl = product.price / 100;
+        int gr = product.price % 100;
+        std::cout << "\t[" << i << "] " << product.name << " (" << zl << "." << gr << "zl) - " << product.quantity << "\n";
     }
 }
 
-size_t countOccurence(const std::string &s1, const std::string &s2) {
-    size_t occurences = 0;
-    size_t len1 = s1.length();
-    size_t len2 = s2.length();
-    for (int i = 0; i < len1 - len2 + 1; i++) {
-        bool found = true;
-        for (int j = 0; j < len2; j++) {
-            if (s1[i+j] != s2[j]) {
-                found = false;
-                break;
-            }
-        }
-        if (found) {
-            occurences++;
-            //i += len2 - 1;
+std::vector<Product> addProduct(std::vector<Product> products, const std::string name, int price, int quantity) {
+    if (name == "") {
+        std::cerr << "Error: Name could not be empty.\n";
+        return products;
+    }
+    else if (price < 0) {
+        std::cerr << "Error: Price could not be negative.\n";
+        return products;
+    }
+    else if (quantity < 0) {
+        std::cerr << "Error: quantity could not be negative.\n";
+        return products;
+    }
+
+    Product product = {name, (unsigned int)price, (unsigned int)quantity};
+    products.push_back(product);
+    return products;
+}
+
+std::vector<Product> removeProduct(std::vector<Product> products, int index) {
+    if ((index < 0) || (index >= products.size())) {
+        std::cerr << "Error: Product index is out of range.\n";
+        return products;
+    }
+
+    products.erase(products.begin() + index);
+    return products;
+}
+
+std::vector<Product> setProductQuantity(std::vector<Product> products, int index, int quantity) {
+    if ((index < 0) || (index >= products.size())) {
+        std::cerr << "Error: Product index is out of range.\n";
+        return products;
+    }
+    else if (quantity < 0) {
+        std::cerr << "Error: quantity could not be negative.\n";
+        return products;
+    }
+
+    products[index].quantity = quantity;
+    return products;
+}
+
+void findProductByName(std::vector<Product> products, const std::string query) {
+    for (int i = 0; i < products.size(); i++) {
+        Product product = products[i];
+        if (product.name == query) {
+            std::cout << "Product index is: " << i << "\n";
+            return;
         }
     }
-    return occurences;
+    std::cout << "Product was not found.\n";
+}
+
+void saveProductsToFile(const std::string filename, std::vector<Product> products) {
+    std::ofstream file = std::ofstream(filename);
+
+    for (Product product : products) {
+        file << product.name << " " << product.price << " " << product.quantity << "\n";
+    }
+
+    file.close();
+}
+
+std::vector<Product> loadProductsFromFile(const std::string filename) {
+    std::vector<Product> products = {};
+    std::ifstream file = std::ifstream(filename);
+
+    Product product;
+    while (file >> product.name >> product.price >> product.quantity) {
+        products.push_back(product);
+    }
+
+    file.close();
+    return products;
 }
 
 int main(int argc, char* argv[]) {
-    std::cout 
-    << "\"MoLoToV\" in lower case is \"" 
-    << convertCase("MoLoToV", true) 
-    << "\" and in upper case is \"" 
-    << convertCase("MoLoToV", false) 
-    << "\"\n";
+    std::string productsFilename = (argc < 2) ? "magazyn.txt" : argv[1];
 
-    std::cout
-    << "\"many angels lived on\" "
-    << (isPalindrome("many angels lived on") ? "is" : "isn\'t")
-    << " a palindrome, \"no devil lived on\" "
-    << (isPalindrome("no devil lived on") ? "is" : "isn\'t")
-    << " a palindrome\n";
+    std::vector<Product> products = loadProductsFromFile(productsFilename);
 
-    std::cout
-    << "random word with 23 letters: "
-    << rand(23)
-    << "\n";
+    bool running = true; 
+    while (running)
+    {
+        std::cout 
+            << "\nChoose action:\n"
+            << "\t1: Show all products\n"
+            << "\t2: Add product\n"
+            << "\t3: Remove product\n"
+            << "\t4: Change product quantity\n"
+            << "\t5: Find product by name\n"
+            << "\t6: End program\n";
+        
+        int action;
+        std::cin >> action;
+        std::cout << "\n";
+        std::string name;
+        int price;
+        int quantity;
+        int index;
+        switch (action)
+        {
+            case 1:
+                showAllProducts(products);
+                break;
+            case 2:
+                std::cout << "Enter product name: ";
+                std::cin >> name;
+                std::cout << "Enter product price: ";
+                std::cin >> price;
+                std::cout << "Enter product quantity: ";
+                std::cin >> quantity;
+                products = addProduct(products, name, price, quantity);
+                break;
+            case 3:
+                std::cout << "Enter product index: ";
+                std::cin >> index;
+                products = removeProduct(products, index);
+                break;
+            case 4:
+                std::cout << "Enter product index: ";
+                std::cin >> index;
+                std::cout << "Enter new product quantity: ";
+                std::cin >> quantity;
+                products = setProductQuantity(products, index, quantity);
+                break;
+            case 5:
+                std::cout << "Enter product name: ";
+                std::cin >> name;
+                findProductByName(products, name);
+                break;
+            case 6:
+                std::cout << "Exiting program.\n";
+                running = false;
+                break;
+            default:
+                std::cerr << "Error: Invalid action.\n";
+                break;
+        }
+    }
 
-    std::cout
-    << "longest word in this sentence has this many letters: "
-    << longestWordLength("longest word in this sentence has this many letters")
-    << "\n";
-
-    std::string message = "Lorem Ipsum";
-    rot13(message);
-    std::cout 
-    << "\"Lorem Ipsum\" encrypted is "
-    << message
-    << "\n";
-
-    std::cout
-    << "word \"pop\" is repeated in \"popsicle popping stop popular mop poppop\" this many times: " 
-    << countOccurence("popsicle popping stop popular mop popop" , "pop")
-    << "\n";
-
-    std::cout 
-    << "\n";
+    saveProductsToFile(productsFilename, products);
 
     return 0;
 }
