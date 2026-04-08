@@ -1,170 +1,59 @@
-#include <iostream>
-#include <fstream>
 #include <string>
+#include <chrono>
+#include <iostream>
+#include <list>
 #include <vector>
 
-typedef struct
+class TimeMeasurement
 {
-    std::string name;
-    unsigned int price;
-    unsigned int quantity;
-} Product;
+	std::string name;
+	std::chrono::time_point<std::chrono::high_resolution_clock> start;
+	
+public:
+	TimeMeasurement(std::string _name) : name(_name) {
+		start = std::chrono::high_resolution_clock::now();
+	}
+	
+	~TimeMeasurement() {
+		std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> duration = end - start;
+		std::cout << name << ": " << duration.count() << " sec" << std::endl;
+	}
+};
 
-void showAllProducts(std::vector<Product> products) {
-    if (products.empty()) {
-        std::cout << "There are no products.\n";
-        return;
-    }
-    std::cout << "Showing all products:\n";
-    for (int i = 0; i < products.size(); i++) {
-        Product product = products[i];
-        int zl = product.price / 100;
-        int gr = product.price % 100;
-        std::cout << "\t[" << i << "] " << product.name << " (" << zl;
-        if (gr != 0) {
-            std::cout << "." << ((gr < 10) ? "0" : "") << gr;
-        }
-        std::cout << "zl) - " << product.quantity << "\n";
-    }
-}
-
-std::vector<Product> addProduct(std::vector<Product> products, const std::string name, int price, int quantity) {
-    if (name == "") {
-        std::cerr << "Error: Name could not be empty.\n";
-        return products;
-    }
-    else if (price < 0) {
-        std::cerr << "Error: Price could not be negative.\n";
-        return products;
-    }
-    else if (quantity < 0) {
-        std::cerr << "Error: quantity could not be negative.\n";
-        return products;
-    }
-
-    Product product = {name, (unsigned int)price, (unsigned int)quantity};
-    products.push_back(product);
-    return products;
-}
-
-std::vector<Product> removeProduct(std::vector<Product> products, int index) {
-    if ((index < 0) || (index >= products.size())) {
-        std::cerr << "Error: Product index is out of range.\n";
-        return products;
-    }
-
-    products.erase(products.begin() + index);
-    return products;
-}
-
-std::vector<Product> setProductQuantity(std::vector<Product> products, int index, int quantity) {
-    if ((index < 0) || (index >= products.size())) {
-        std::cerr << "Error: Product index is out of range.\n";
-        return products;
-    }
-    else if (quantity < 0) {
-        std::cerr << "Error: quantity could not be negative.\n";
-        return products;
-    }
-
-    products[index].quantity = quantity;
-    return products;
-}
-
-void findProductByName(std::vector<Product> products, const std::string query) {
-    for (int i = 0; i < products.size(); i++) {
-        Product product = products[i];
-        if (product.name == query) {
-            std::cout << "Product index is: " << i << "\n";
-            return;
+int main()
+{
+	{
+        std::vector<int> container = {};
+        TimeMeasurement t("Element addition (Vector)");
+        for (int i = 0; i < 100000; i++) {
+            container.insert(container.begin(), 123456);
         }
     }
-    std::cout << "Product was not found.\n";
-}
-
-void saveProductsToFile(const std::string filename, std::vector<Product> products) {
-    std::ofstream file = std::ofstream(filename);
-
-    for (Product product : products) {
-        file << product.name << " " << product.price << " " << product.quantity << "\n";
-    }
-
-    file.close();
-}
-
-std::vector<Product> loadProductsFromFile(const std::string filename) {
-    std::vector<Product> products = {};
-    std::ifstream file = std::ifstream(filename);
-
-    Product product;
-    while (file >> product.name >> product.price >> product.quantity) {
-        products.push_back(product);
-    }
-
-    file.close();
-    return products;
-}
-
-int main(int argc, char* argv[]) {
-    std::string productsFilename = (argc < 2) ? "magazyn.txt" : argv[1];
-
-    std::vector<Product> products = loadProductsFromFile(productsFilename);
-
-    bool running = true; 
-    while (running)
     {
-        std::cout 
-            << "\nChoose action:\n"
-            << "\t1: Show all products\n"
-            << "\t2: Add product\n"
-            << "\t3: Remove product\n"
-            << "\t4: Change product quantity\n"
-            << "\t5: Find product by name\n"
-            << "\t6: End program\n";
-        
-        int action;
-        std::cin >> action;
-        std::cout << "\n";
-        std::string name;
-        int price;
-        int quantity;
-        int index;
-        switch (action)
-        {
-            case 1:
-                showAllProducts(products);
-                break;
-            case 2:
-                std::cout << "Enter product (name price quantity): ";
-                std::cin >> name >> price >> quantity;
-                products = addProduct(products, name, price, quantity);
-                break;
-            case 3:
-                std::cout << "Enter product index: ";
-                std::cin >> index;
-                products = removeProduct(products, index);
-                break;
-            case 4:
-                std::cout << "Enter new quantity for product (index quantity): ";
-                std::cin >> index >> quantity;
-                products = setProductQuantity(products, index, quantity);
-                break;
-            case 5:
-                std::cout << "Enter product name: ";
-                std::cin >> name;
-                findProductByName(products, name);
-                break;
-            case 6:
-                std::cout << "Exiting program. Changes saved.\n";
-                running = false;
-                break;
-            default:
-                std::cerr << "Error: Invalid action.\n";
-                break;
+        std::list<int> container = {};
+        TimeMeasurement t("Element addition (List)");
+        for (int i = 0; i < 100000; i++) {
+            container.insert(container.begin(), 123456);
         }
     }
 
-    saveProductsToFile(productsFilename, products);
+    {
+        std::vector<int> container(100000, 1);
+        long sum = 0;
+        TimeMeasurement t("Cache friendliness (Vector)");
+        for (int element : container) {
+            sum += element;
+        }
+    }
+    {
+        std::list<int> container(100000, 1);
+        long sum = 0;
+        TimeMeasurement t("Cache friendliness (List)");
+        for (int element : container) {
+            sum += element;
+        }
+    }
 
-    return 0;
+	return 0;
 }
