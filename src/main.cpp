@@ -12,9 +12,9 @@ int gcd(int a, int b) {
 
 class Ulamek {
 public:
-    Ulamek(int _a, int _b) {
-        this->a = _a;
-        this->b = _b;
+    Ulamek(int a, int b) {
+        this->a = a;
+        this->b = b;
         this->optimize();
     }
 
