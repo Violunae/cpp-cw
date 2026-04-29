@@ -9,7 +9,6 @@
                 "-std=c++17",
                 "-g",
                 "${workspaceFolder}/src/*.cpp",
-                "${workspaceFolder}/src/*.hpp",
                 "-o",
                 "${workspaceFolder}/build/program"
             ],
