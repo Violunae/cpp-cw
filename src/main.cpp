@@ -1,14 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-
-int gcd(int a, int b) {
-    if (a == 0) return b;
-    if (b == 0) return a;
-    if (a == b) return a;
-    if (a > b) return gcd(a - b, b);
-    return gcd(a, b - a);
-}
+#include <numeric>
 
 class Ulamek {
 public:
@@ -53,16 +46,9 @@ public:
         return os;
     }
 
-    Ulamek simplify() {
-        int ugcd = gcd(this->a, this->b);
-        int new_a = a / ugcd;
-        int new_b = b / ugcd;
-        return Ulamek(a, b);
-    }
-
 private:
     void optimize() {
-        int ugcd = gcd(this->a, this->b);
+        int ugcd = std::gcd(this->a, this->b);
         a /= ugcd;
         b /= ugcd;
     }
