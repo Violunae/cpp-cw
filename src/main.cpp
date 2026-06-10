@@ -1,88 +1,119 @@
-#include <iostream>
 #include <vector>
-#include <fstream>
+#include <iostream>
 
-int gcd(int a, int b) {
-    if (a == 0) return b;
-    if (b == 0) return a;
-    if (a == b) return a;
-    if (a > b) return gcd(a - b, b);
-    return gcd(a, b - a);
-}
-
-class Ulamek {
+class Canvas {
 public:
-    Ulamek(int _a, int _b) {
-        this->a = _a;
-        this->b = _b;
-        this->optimize();
+    Canvas(size_t w, size_t h) : width(w), height(h), grid(h, std::vector<bool>(w, false)) {}
+    
+    void set(size_t x, size_t y) {
+        if (x < width && y < height)
+            grid[y][x] = true;
     }
 
-    Ulamek operator+(const Ulamek& other) const {
-        int new_a = (this->a * other.b) + (other.a * this->b);
-        int new_b = this->b * other.b;
-        return Ulamek(new_a, new_b);
+    void print() const {
+        for (const auto& row : grid) {
+            for (bool c : row) {
+                std::cout << (c ? "\xE2\x96\x88" : " ");
+            }
+            std::cout << std::endl;
+        }
     }
 
-    Ulamek operator-(const Ulamek& other) const {
-        int new_a = (this->a * other.b) - (other.a * this->b);
-        int new_b = this->b * other.b;
-        return Ulamek(new_a, new_b);
+    size_t getWidth() const {
+        return width;
     }
 
-    Ulamek operator*(const Ulamek& other) const {
-        int new_a = this->a * other.a;
-        int new_b = this->b * other.b;
-        return Ulamek(new_a, new_b);
-    }
-    Ulamek operator/(const Ulamek& other) const {
-        int new_a = this->a * other.b;
-        int new_b = this->b * other.a;
-        Ulamek res(new_a, new_b);
-        return res;
-    }
-
-    bool operator==(const Ulamek& other) const {
-        bool a = this->a == other.a;
-        bool b = this->b == other.b;
-        return a && b;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Ulamek& u) {
-        os << u.a << "/" << u.b;
-        return os;
-    }
-
-    Ulamek simplify() {
-        int ugcd = gcd(this->a, this->b);
-        int new_a = a / ugcd;
-        int new_b = b / ugcd;
-        return Ulamek(a, b);
+    size_t getHeight() const {
+        return height;
     }
 
 private:
-    void optimize() {
-        int ugcd = gcd(this->a, this->b);
-        a /= ugcd;
-        b /= ugcd;
-    }
+    std::vector<std::vector<bool>> grid;
+    size_t width, height;
+};
 
-    int a;
-    int b;
+class Painter {
+protected:
+    Canvas& canvas; /* Kompozycja */
+public:
+    Painter(Canvas& c) : canvas(c) {}
+    virtual void paint() = 0;
 };
 
 
-int main()
-{
-    Ulamek ul1(3, 6);
-    Ulamek ul2(5, 15);
 
-    std::cout << ul1 << " +  " << ul2 << " = " << (ul1 + ul2) << "\n";
-    std::cout << ul1 << " -  " << ul2 << " = " << (ul1 - ul2) << "\n";
-    std::cout << ul1 << " *  " << ul2 << " = " << (ul1 * ul2) << "\n";
-    std::cout << ul1 << " /  " << ul2 << " = " << (ul1 / ul2) << "\n";
-    std::cout << ul1 << " == " << ul2 << " = " << (ul1 == ul2) << "\n";
-    std::cout << ul1 << " == " << ul1 << " = " << (ul1 == ul1) << "\n";
+class VerticalLinePainter : public Painter {
+private:
+    int x;
+
+public:
+    VerticalLinePainter(Canvas& c, int x)
+        : Painter(c), x(x) {}
+
+    void paint() override {
+        if (x < 0) return;
+
+        for (size_t y = 0; y < canvas.getHeight(); ++y) {
+            canvas.set(x, y);
+        }
+    }
+};
+
+class HorizontalLinePainter : public Painter {
+private:
+    int y;
+
+public:
+    HorizontalLinePainter(Canvas& c, int y)
+        : Painter(c), y(y) {}
+
+    void paint() override {
+        if (y < 0) return;
+
+        for (size_t x = 0; x < canvas.getWidth(); ++x) {
+            canvas.set(x, y);
+        }
+    }
+};
+
+class RectanglePainter : public Painter {
+public:
+    RectanglePainter(Canvas& c)
+        : Painter(c) {}
+
+    void paint() override {
+        size_t w = canvas.getWidth();
+        size_t h = canvas.getHeight();
+
+        if (w == 0 || h == 0)
+            return;
+
+        for (size_t x = 0; x < w; ++x) {
+            canvas.set(x, 0);
+            canvas.set(x, h - 1);
+        }
+
+        for (size_t y = 0; y < h; ++y) {
+            canvas.set(0, y);
+            canvas.set(w - 1, y);
+        }
+    }
+};
+
+
+
+int main() {
+    Canvas canvas(20, 10);
+
+    RectanglePainter rect(canvas);
+    VerticalLinePainter vline(canvas, 10);
+    HorizontalLinePainter hline(canvas, 5);
+
+    rect.paint();
+    vline.paint();
+    hline.paint();
+
+    canvas.print();
 
     return 0;
 }
