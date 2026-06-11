@@ -1,0 +1,62 @@
+[
+    {
+        "id": 15023,
+        "firstName": "Marcin",
+        "lastName": "Dabrowski",
+        "score": 82.5
+    },
+    {
+        "id": 15567,
+        "firstName": "Joanna",
+        "lastName": "Kozlowska",
+        "score": 91.2
+    },
+    {
+        "id": 16001,
+        "firstName": "Lukasz",
+        "lastName": "Jankowski",
+        "score": 64.3
+    },
+    {
+        "id": 16543,
+        "firstName": "Monika",
+        "lastName": "Mazur",
+        "score": 86.7
+    },
+    {
+        "id": 17022,
+        "firstName": "Krzysztof",
+        "lastName": "Krawczyk",
+        "score": 72.1
+    },
+    {
+        "id": 17567,
+        "firstName": "Natalia",
+        "lastName": "Piotrowska",
+        "score": 89.9
+    },
+    {
+        "id": 18045,
+        "firstName": "Adam",
+        "lastName": "Grabowski",
+        "score": 45.6
+    },
+    {
+        "id": 18521,
+        "firstName": "Aleksandra",
+        "lastName": "Pawlak",
+        "score": 96.4
+    },
+    {
+        "id": 19009,
+        "firstName": "Damian",
+        "lastName": "Michalski",
+        "score": 69.5
+    },
+    {
+        "id": 19588,
+        "firstName": "Karolina",
+        "lastName": "Krol",
+        "score": 80.3
+    }
+]
